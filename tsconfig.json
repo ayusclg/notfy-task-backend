@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",          // Output directory for compiled JS
+    "rootDir": "./src",          // Your source TS files folder
+    "strict": true, 
+     "moduleResolution": "node",             // Optional, for strict type-checking
+    "esModuleInterop": true,    // Recommended for import compatibility
+    // ... other options
+  }
+}
