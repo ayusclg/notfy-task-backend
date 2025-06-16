@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { NextFunction,Request,Response } from 'express'
 import dotenv from 'dotenv'
 import { dbconnect } from './db'
 
@@ -12,6 +12,15 @@ const port = process.env.PORT || 3000
 app.get("/", (req, res) => {
     res.send("Hello From Backend")
 })
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    res.status(err.statusCode || 500).json({
+        message: err.message || "Server Failure",
+        success:false
+    })
+})
+    
+
 dbconnect()
     .then(() => {
     app.listen(port, () => {
