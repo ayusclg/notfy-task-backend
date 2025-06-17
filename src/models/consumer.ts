@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 
 type  role = "admin"|"user"
 export interface Consumers extends Document{
@@ -7,7 +7,8 @@ export interface Consumers extends Document{
     email: string,
     password: string,
     avatart: string,
-    role:role
+    role: role,
+    works:ObjectId,
 }
 
 const consumerSchema = new mongoose.Schema({
@@ -35,7 +36,11 @@ const consumerSchema = new mongoose.Schema({
     role: {
         type: String,
         enum:["admin","user"]
-    }
+    },
+    works: [{
+        type: mongoose.Types.ObjectId,
+        ref:"Work"
+    }]
     
 })
 

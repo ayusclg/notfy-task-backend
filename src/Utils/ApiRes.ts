@@ -24,3 +24,4 @@ class ApiResponse extends Error{
             }
     }
 }
+export default ApiResponse
