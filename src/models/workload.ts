@@ -1,11 +1,16 @@
+import { ObjectId } from "mongodb";
 import mongoose from "mongoose"
 
 type Status = "marked" | "completed" | "canceled";
-interface IWork extends Document {
+type day = "sunday"|"monday"|"tuesday"|"wenesday"|"thrusday"|"friday" |"saturday"
+
+export interface IWork extends Document {
   title: string;
   description: string;
   taskTime: Date;
-  status: Status;
+    status: Status;
+    createdBy: ObjectId;
+    taskDay:day
 }
 
 
@@ -24,7 +29,16 @@ const workSchema = new mongoose.Schema({
     },
     status: {
         type:String,
-        enum:["marked","completed","canceled"],
+        enum: ["marked", "completed", "canceled"],
+        default:"marked"
+    },
+    createdBy: {
+        type: mongoose.Types.ObjectId,
+        ref:"Consumer"
+    },
+    createdAt: {
+        type: Date,
+        default:Date.now()
     }
 })
 
