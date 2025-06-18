@@ -6,6 +6,7 @@ import ApiResponse from "../Utils/ApiRes";
 import { asyncHandler } from "../Utils/AsyncHandler";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { Types } from "mongoose";
 
 
 const createWorkSchedule = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -61,14 +62,28 @@ const updateWork = asyncHandler(async (req: Request, res: Response): Promise<voi
 })
 
 const updateStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const status = req.body
+  const userLogged = await Consumer.findById(req.userId)
+  if (!userLogged) throw new ApiError(401, {}, "User Not Logged In")
+  
+    const {status} = req.body
 
     const work = await Work.findById(req.params.id)
-    if (!work) throw new ApiError(404, {}, "Please Create a Work First")
-    
+  if (!work) throw new ApiError(404, {}, "Please Create a Work First")
+  
+  
+  if (status === work.status) throw new ApiError(403, {}, `${status} already declared`)
+  
     if (status) work.status = status
-    await work.save()
-
+  await work.save()
+  if (status === "canceled") {
+    const deleteWork = await Work.findByIdAndDelete(req.params.id)
+    if(!deleteWork) throw new ApiError(400,null,"Work Canceled")
+  }
+  console.log(req.params.id)
+  console.log(userLogged.works)
+  userLogged.works = (userLogged.works as any).filter((id: Types.ObjectId) => id.toString() !== req.params.id.toString()
+  )
+  await userLogged.save()
     res.status(200).json(new ApiResponse(200,work,`Work Status set to ${status}` ))
 
 })
@@ -107,4 +122,12 @@ const activateMailService = asyncHandler(async (req: Request, res: Response): Pr
   }
 });
 
-export {createWorkSchedule,updateWork,updateStatus,activateMailService}
+const getAllWork = asyncHandler(async (req: Request, res: Response) => {
+  const work = await Work.find({ createdBy: req.userId })
+  if(!work) throw new ApiError(404,null,"No Work  Scheduled yet")
+  
+  res.status(200).json(new ApiResponse(200,work,"Users all work fetched"))
+})
+
+
+export {createWorkSchedule,updateWork,updateStatus,activateMailService,getAllWork}
