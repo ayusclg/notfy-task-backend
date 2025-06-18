@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import { dbconnect } from './db'
 import authRoutes from './routes/auth'
 import cookieParser from 'cookie-parser'
+import workRoutes from './routes/work'
 
 
 dotenv.config()
@@ -17,7 +18,11 @@ app.get("/", (req, res) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.use("/auth",authRoutes)
+
+
+app.use("/auth", authRoutes)
+app.use("/work",workRoutes)
+
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(err.statusCode || 500).json({
         message: err.message || "Server Failure",

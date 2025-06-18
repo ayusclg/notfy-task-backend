@@ -13,9 +13,9 @@ const AccessToken = async (userId: Types.ObjectId):Promise<string>=>{
         if (!user) {
         throw new Error('User not found');
         }
-        console.log("user",user)
+      
         const AccessToken = user.generateAccessToken() as string
-        console.log("aayush")
+       
         return AccessToken;
 
     } catch (error) {
