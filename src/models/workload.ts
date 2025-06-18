@@ -7,10 +7,11 @@ type day = "sunday"|"monday"|"tuesday"|"wenesday"|"thrusday"|"friday" |"saturday
 export interface IWork extends Document {
   title: string;
   description: string;
-  taskTime: Date;
+  reminderTime: Date;
     status: Status;
     createdBy: ObjectId;
-    taskDay:day
+    taskDay: day;
+    reminderSent: boolean;
 }
 
 
@@ -23,7 +24,7 @@ const workSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    taskTime: {
+    reminderTime: {
         type: Date,
         required:true,
     },
@@ -39,6 +40,9 @@ const workSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default:Date.now()
+    },
+    reminderSent: {
+        type:Boolean,
     }
 })
 
