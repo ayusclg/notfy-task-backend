@@ -1,3 +1,4 @@
+import { myQueue } from "../middlewares/queue";
 import { Consumer } from "../models/consumer";
 import { Work } from "../models/workload";
 import { sendMail } from "../Service/Nodemailer";
@@ -100,26 +101,24 @@ const activateMailService = asyncHandler(async (req: Request, res: Response): Pr
     const email = user.email
 
     const timeLeft = new Date(dueTime).getTime() - Date.now()
+    console.log(timeLeft)
+  if (timeLeft > 0) {
+    myQueue.add("reminderEmail", {
+      to: email,
+      subject: findWork.title,
+      html: findWork.description,
+      text:findWork.description
     
-    if (timeLeft > 0) {
-        setTimeout(async () => {
-      try {
-        await sendMail({
-          to: email,
-          subject: findWork.title,
-          html: findWork.description,
-          text: findWork.description
-        });
-        console.log(`Reminder email sent to ${email}`);
-      } catch (err) {
-        console.error(`Failed to send reminder email to ${email}:`, err);
-      }
-    }, timeLeft);
-
-    res.status(200).json({ message: 'Reminder scheduled successfully.' });
-  } else {
-    res.status(400).json({ error: 'Reminder time is in the past.' });
+    }, {
+      attempts: 3,
+      delay: timeLeft,
+      removeOnComplete:true,
+    })
   }
+  
+  
+  res.status(200).json(new ApiResponse(200,{},"Reminder Email Sent Successfully"))
+   
 });
 
 const getAllWork = asyncHandler(async (req: Request, res: Response) => {
@@ -130,4 +129,4 @@ const getAllWork = asyncHandler(async (req: Request, res: Response) => {
 })
 
 
-export {createWorkSchedule,updateWork,updateStatus,activateMailService,getAllWork}
+export {createWorkSchedule,updateWork,updateStatus,activateMailService,getAllWork}  
