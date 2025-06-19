@@ -7,7 +7,7 @@ class ApiResponse extends Error {
     constructor(
         statusCode: number,
         data: any = null,
-        message: string = "Something went wrong",
+        message: string = "Successfully Done",
 
     ) {
         super(message)
