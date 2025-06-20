@@ -4,6 +4,7 @@ import { dbconnect } from './db'
 import authRoutes from './routes/auth'
 import cookieParser from 'cookie-parser'
 import workRoutes from './routes/work'
+import  './middlewares/worker'
 
 
 dotenv.config()
