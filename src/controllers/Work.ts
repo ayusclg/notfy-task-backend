@@ -92,34 +92,34 @@ const updateStatus = asyncHandler(async (req: Request, res: Response): Promise<v
 const activateMailService = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const workId = req.params.id
     const user = await Consumer.findById(req.userId)
-        if(!user) throw new ApiError(401,{},"Unauthorized")
+    if (!user) throw new ApiError(401, {}, "Unauthorized")
     
     const findWork = await Work.findById(workId)
     if (!findWork) throw new ApiError(404, {}, "No Work Scheduled")
     
-    const dueTime = findWork.reminderTime
     const email = user.email
+    const timeLeft = findWork.reminderTime.getTime() - Date.now();
 
-    const timeLeft = new Date(dueTime).getTime() - Date.now()
-    console.log(timeLeft)
-  if (timeLeft > 0) {
-    myQueue.add("reminderEmail", {
-      to: email,
-      subject: findWork.title,
-      html: findWork.description,
-      text:findWork.description
-    
-    }, {
-      attempts: 3,
-      delay: timeLeft,
-      removeOnComplete:true,
-    })
-  }
-  
-  
-  res.status(200).json(new ApiResponse(200,{},"Reminder Email Sent Successfully"))
-   
+    console.log("ReminderTime (UTC):", findWork.reminderTime);
+    console.log("CurrentTime (UTC):", new Date());
+    console.log("Time Left (ms):", timeLeft);
+
+    if (timeLeft > 0) {
+      await myQueue.add("reminderEmail", {
+        to: email,
+        subject: findWork.title,
+        html: findWork.description,
+        text: findWork.description
+      }, {
+        attempts: 3,
+        delay: timeLeft,
+        removeOnComplete: true,
+      });
+    }
+
+    res.status(200).json(new ApiResponse(200, findWork.title, "Reminder Email Sent Successfully"));
 });
+
 
 const getAllWork = asyncHandler(async (req: Request, res: Response) => {
   const work = await Work.find({ createdBy: req.userId })

@@ -64,7 +64,7 @@ const userCreate = asyncHandler(async (req: Request, res: Response):Promise<void
 })
 
 const userLogin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("aayush",req.body)
+
     const { email, password } = req.body
     
     const user = await Consumer.findOne({ email, })
