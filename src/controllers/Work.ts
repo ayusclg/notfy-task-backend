@@ -1,3 +1,4 @@
+import { Job } from "bullmq";
 import { myQueue } from "../middlewares/queue";
 import { Consumer } from "../models/consumer";
 import { Work } from "../models/workload";
@@ -13,14 +14,14 @@ import { Types } from "mongoose";
 const createWorkSchedule = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     if (!req.body) throw new ApiError(404, {}, "Contents not found")
     const { title, description, reminderTime,taskDay} = req.body
-    
+      const utcReminderTime = new Date(reminderTime).toISOString()
 
     const user = await Consumer.findById(req.userId)
     if (user) {
         const create = await Work.create({
             title,
             description,
-            reminderTime,
+            reminderTime:utcReminderTime,
             taskDay,
             createdBy:new mongoose.Types.ObjectId(req.userId),
             
@@ -98,11 +99,13 @@ const activateMailService = asyncHandler(async (req: Request, res: Response): Pr
     if (!findWork) throw new ApiError(404, {}, "No Work Scheduled")
     
     const email = user.email
-    const timeLeft = findWork.reminderTime.getTime() - Date.now();
+  const timeLeft = findWork.reminderTime.getTime() - Date.now();
+  
+  const existingJob: Job | null = await myQueue.getJob(workId)
+  if (existingJob) {
+      await existingJob.remove()
+  }
 
-    console.log("ReminderTime (UTC):", findWork.reminderTime);
-    console.log("CurrentTime (UTC):", new Date());
-    console.log("Time Left (ms):", timeLeft);
 
     if (timeLeft > 0) {
       await myQueue.add("reminderEmail", {
@@ -111,6 +114,7 @@ const activateMailService = asyncHandler(async (req: Request, res: Response): Pr
         html: findWork.description,
         text: findWork.description
       }, {
+        jobId:workId,
         attempts: 3,
         delay: timeLeft,
         removeOnComplete: true,
