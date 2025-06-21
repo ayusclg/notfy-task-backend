@@ -53,7 +53,7 @@ Install dependencies:npm install
 <h1>Environment Variables</h1>
 Create a .env file in the root directory and add the following environment variables:
 <li>PORT=3000</li>
-<li>>MONGODB_URI=your_mongodb_connection_string</li>
+<li>MONGODB_URI=your_mongodb_connection_string</li>
 <li>REDIS_URL=your_redis_connection_string</li>
 <li>JWT_SECRET=your_jwt_secret</li>
 <li>CLOUDINARY_CLOUD_NAME=your_cloud_name</li>
